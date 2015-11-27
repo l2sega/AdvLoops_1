@@ -123,3 +123,110 @@ Then /^Search from array$/ do
     end
   end
 end
+
+Then /^Check the check-boxes with label Model Year$/ do
+  $driver.get "http://www.ebay.com/sch/Cars-Trucks-/6001/i.html"
+  show = $driver.find_element :xpath => "//div[@id = 'e1-9']//a[@role = 'button']"
+  show.click
+  sleep 3
+  el = $driver.find_elements :xpath => "(//div[@class = 'selected_content']//input[@type = 'checkbox'])[position() > 1]"
+  for i in el do
+    i.click
+  end
+end
+
+Then /^Verify checked boxes$/ do
+  el = $driver.find_elements :xpath => "//div[@class = 'selected_content']//input[@type = 'checkbox']"
+  for i in el do
+    if i.selected?
+    else
+      raise 'You have not checked box/boxess'
+    end
+  end
+end
+
+Then /^Select ([^"]*) from drop down list$/ do |item|
+  $driver.get "http://www.ebay.com/sch/Cars-Trucks-/6001/i.html"
+  drop = $driver.find_element :id => "gh-cat"
+  sel_drop = $dropdown.new(drop)
+  #sel_drop.select_by(:index, 1)
+  sel_drop.select_by(:text, "#{item}")
+end
+
+Then /^Verify selected item from drop down list$/ do
+  drop = $driver.find_element :id => "gh-cat"
+  sel_drop = $dropdown.new(drop)
+  sel_drop.first_selected_option.text
+end
+
+Then /^Select items from cascade dropdown list$/ do
+  $driver.get "http://ajaxcontroltoolkit.com/CascadingDropDown/CascadingDropDown.aspx"
+  drop = $driver.find_elements :xpath => "//select[contains(@id, 'ctl00')]"
+  for i in drop do
+    sel_drop = $dropdown.new(i)
+    sel_drop.select_by(:index, 1)
+    sleep 2
+  end
+end
+
+Then /^Search with Google$/ do
+  $driver.get "http://www.google.com"
+  searchline = $driver.find_element :id => "lst-ib"
+  searchline.send_keys "What if "
+  puts "Google sugest folowing variants"
+  sleep 2
+  subsearch = $driver.find_elements :xpath => "//ul[@role = 'listbox']//div[@class = 'sbqs_c']"
+  for i in subsearch do
+    puts i.text
+  end
+  random_variant = subsearch.sample
+  puts "I have chose %s" %random_variant.text
+  random_variant.click
+end
+
+Then /^Check mileage ([^"]*)$/ do |x|
+  $driver.get "http://www.ebay.com/sch/Cars-Trucks-/6001/i.html"
+  box = $driver.find_element :xpath => "//a[.//span[text() = '#{x}']]//input"
+  box.click
+end
+
+Then /^Verify mileage$/ do
+  array_for_var = []
+  mileafes = $driver.find_elements :xpath => "//li[contains(text(), 'Mileage')]"
+  for i in mileafes do
+    a = i.text.sub!('Mileage: ', '').delete(',').to_i
+    array_for_var.push(a)
+  end
+  for x in array_for_var do
+    if x < 20000
+      next
+    else
+      raise 'Your range more then 20,000'
+    end
+  end
+  puts 'succesful'
+  #puts array_for_var
+end
+
+Then /^go to "([^"]*)"$/ do |link|
+  $driver.get link
+  sleep 2
+end
+
+Then /^Click on See all colors$/ do
+  button = $driver.find_element(:xpath, "//div[.//span/h3[text() = 'Exterior Color']]/a")
+  button.click
+  sleep 2
+end
+
+Then /^Choose some colors$/ do
+  color_we_want = ['Black', 'Gray', 'Blue']
+  for i in color_we_want do
+    $driver.find_element(:xpath, "//input[@type = 'checkbox' and @value = '"+i+"']").click
+    sleep 1
+  end
+end
+
+
+
+
