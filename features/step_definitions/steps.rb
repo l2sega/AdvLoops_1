@@ -227,6 +227,69 @@ Then /^Choose some colors$/ do
   end
 end
 
+Then /^Ddown$/ do
+  target = $driver.find_element :id => "bin"
+  sourse = $driver.find_element :id => "one" #:xpath => "//article//a"
+  $driver.action.drag_and_drop(sourse, target).perform
+end
 
+Then /^Hybrid dd all values to first$/ do
+  triggers = $driver.find_elements :xpath => "//span[@class = 'k-input'][contains(text(), 'Select')]"
+  for i in triggers do
+    i.click
+    sleep 1
+    $driver.find_element(:xpath, "(//ul[@aria-hidden = 'false']/li)[1]").click
+    sleep 1
+  end
+end
 
+Then /^upload$/ do
+  upload = $driver.find_element :xpath => "//form[@action = 'fup.cgi']/input[@type = 'file']"
+  #upload.send_keys "C:\\Users\\Sega\\Desktop\\Test.jpg"
+  file = 'AdvLoops_1/TestData/Test.jpg'
+  #final_path = File.join(File.expand_path("..", Dir.pwd), file) #E:\Git\RubymineProjects\AdvLoops_1\TestData
+  #sleep 2
+  final_path = File.join(Dir.pwd, file)
+  #file = File.join(File.dirname(__FILE__) + '/../TestData/Test.jpg')
+  upload.send_keys final_path
+  #$driver.execute_script "$('input').show();"
+  #$driver.execute_script 'document.getElementsByName('body')[0].setAttribute('type', 'text')'
+  #button = $driver.find_element :xpath => "//input[@type = 'submit']"
+  #button.click
+  #puts final_path
+end
 
+Then /^upload file "([^"]*)"$/ do |file|
+  upload = $driver.find_element :xpath => "//form[@id = 'id6']//input[@name = 'fileInput']"
+  #file = 'AdvLoops_1/TestData/Test.jpg'
+  final_path = File.join(Dir.pwd, file)
+  upload.send_keys final_path
+end
+
+Then /^Upload files$/ do
+  new_array = []
+  until new_array.count == 3  do
+    upload = $driver.find_element(:xpath, "//div[@id = 'fine-uploader-gallery']//div/div/input")
+    array = ['Test.jpg', 'Test2.jpg', 'Test3.jpg']
+    random_variant = array.sample
+    if new_array.include? random_variant
+      next
+    else
+      new_array.push(random_variant)
+      file = '/TestData/' + random_variant
+      final_path = File.join(Dir.pwd, file)
+      upload.send_keys final_path
+    end
+  end
+  puts new_array
+end
+
+Then /^Drag all items$/ do
+  sourses = $driver.find_elements(:xpath, "//div[@id = 'cardPile']/div")
+  for i in sourses
+    sourse = $driver.find_element(:xpath, "//div[@id = 'cardPile']/div[text() = '"+i.text.to_s+"']")
+    target = $driver.find_element(:xpath, "(//div[@id = 'cardSlots']/div)["+i.text.to_s+"]")
+    $driver.action.drag_and_drop(sourse, target).perform
+    sleep 1
+  end
+end

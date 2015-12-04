@@ -47,3 +47,29 @@ Feature: Test
     Then go to "http://www.ebay.com/sch/Cars-Trucks-/6001/i.html"
     Then Click on See all colors
     Then Choose some colors
+
+  Scenario: DD HTML5
+    Then go to "http://html5demos.com/drag#"
+    Then Ddown
+
+  Scenario: Hybrid dropdown
+    Then go to "http://demos.telerik.com/kendo-ui/dropdownlist/cascadingdropdownlist"
+    Then Hybrid dd all values to first
+
+  #it works only on Chrome
+  Scenario: Upload file
+    Then go to "http://cgi-lib.berkeley.edu/ex/fup.html"
+    Then upload
+
+  #it works only on Chrome
+  Scenario: Upload file 2
+    Then go to "http://www.wicket-library.com/wicket-examples/upload/single;jsessionid=C6362C722ED885455F9DD87AB5ACECC6?0"
+    Then upload file "AdvLoops_1/TestData/Test.jpg"
+
+  Scenario: Upload file 3
+    Then go to "http://fineuploader.com/demos"
+    Then Upload files
+
+  Scenario: Game drag and drop
+    Then go to "http://www.elated.com/res/File/articles/development/javascript/jquery/drag-and-drop-with-jquery-your-essential-guide/card-game.html"
+    Then Drag all items
