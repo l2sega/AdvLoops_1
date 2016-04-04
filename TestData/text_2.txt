@@ -1,0 +1,7 @@
+The request also contains the cookies that the browser has for this domain.
+As you probably already know, cookies are key-value pairs that track the state of
+a web site in between different page requests. And so the cookies store the name
+of the logged-in user, a secret number that was assigned to the user by the server,
+some of user’s settings, etc. The cookies will be stored in a text file on the client,
+and sent to the server with every request.
+This is the line of text I was looking for

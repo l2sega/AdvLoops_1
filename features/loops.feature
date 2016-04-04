@@ -29,9 +29,14 @@ Feature: Test
     Then Check the check-boxes with label Model Year
     Then Verify checked boxes
 
-  Scenario: Open drop down list
-    Then Select Книги from drop down list
-    Then Verify selected item from drop down list
+  Scenario Outline: Open drop down list
+    Then Select <item> from drop down list
+
+    Examples:
+      | item  |
+      | Книги |
+      | Зоотовары |
+      | Искусство |
 
   Scenario: Cascade dropdown list
     Then Select items from cascade dropdown list
@@ -73,3 +78,49 @@ Feature: Test
   Scenario: Game drag and drop
     Then go to "http://www.elated.com/res/File/articles/development/javascript/jquery/drag-and-drop-with-jquery-your-essential-guide/card-game.html"
     Then Drag all items
+
+  Scenario: Click on slice
+    Then go to "http://bl.ocks.org/Caged/6476579"
+    Then Switch to
+    Then Click on a slice A
+
+  Scenario: Reed some file
+    Then Read and print out
+
+  Scenario: Scream if found target in text
+    Then Scream if found "sun" in text
+
+  Scenario: Print all credentials from file
+    Then Print them all
+
+  Scenario: Credentials from specific row
+    Then Print credentials from the row "3"
+
+  Scenario: Reading through files
+    Then Find string into the files
+
+  Scenario: Try to login
+    Then go to "http://www.facebook.com"
+    Then Try to login
+
+  Scenario: Gmail log in
+    Then Log in into gmail
+
+  Scenario: Gmail print unread mails
+    Then Print unread
+
+  Scenario: Gmail registration link
+    Then Link from mail
+
+  Scenario: Remove spam from Gmail
+    Then Spam remove
+
+  Scenario: Gmail send mail
+    Then Send mail to "sskoff@mail.ru"
+
+  Scenario: Net Imap
+    Then Net imap mails print
+
+  Scenario: Pathfinder
+    Then Find code for pathfinder
+   # Then Find the passcode

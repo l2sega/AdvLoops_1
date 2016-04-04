@@ -151,12 +151,10 @@ Then /^Select ([^"]*) from drop down list$/ do |item|
   sel_drop = $dropdown.new(drop)
   #sel_drop.select_by(:index, 1)
   sel_drop.select_by(:text, "#{item}")
-end
-
-Then /^Verify selected item from drop down list$/ do
   drop = $driver.find_element :id => "gh-cat"
   sel_drop = $dropdown.new(drop)
   sel_drop.first_selected_option.text
+  puts "OK"
 end
 
 Then /^Select items from cascade dropdown list$/ do
@@ -293,3 +291,234 @@ Then /^Drag all items$/ do
     sleep 1
   end
 end
+
+Then /^Switch to$/ do
+  $driver.switch_to.frame(0)
+  #$driver.switch_to.default_content
+end
+
+Then /^Click on a slice ([^"]*)$/ do |target|
+  letters = $driver.find_elements(:xpath, "//*[name() = 'g'][@class = 'x axis']//*[name() = 'text']")
+  letters = letters.map {|x| x.text}
+  puts letters
+
+  #letters.index(target)
+  #hash = Hash[letters.map.with_index.to_a]
+  #puts hash
+  counter = 0
+  for i in letters do
+    if i == target
+      break
+    else
+      counter += 1
+    end
+  end
+  sleep 1
+
+  link_to_the_chart = $driver.find_element(:xpath, "(//*[name() = 'g'][@transform = 'translate(40,40)']//*[name() = 'rect'])["+(counter+1).to_s+"]")
+  sleep 2
+  $driver.mouse.move_to link_to_the_chart
+  sleep 1
+  pers = $driver.find_element(:xpath, "//div[@class = 'd3-tip n']/span").text.to_f*100
+  puts target + ' equal ' + pers.round(1).to_s + '%'
+  #hash[target]
+end
+
+Then /^Read and print out$/ do
+  file_rtf = File.join(Dir.pwd, '/TestData/romeo.txt')
+  File.open(file_rtf, 'r').each_line do |line|
+    puts line
+  end
+end
+
+Then /^Scream if found "([^"]*)" in text$/ do |phrase|
+  file_rtf = File.join(Dir.pwd, '/TestData/romeo.txt')
+  File.open(file_rtf, 'r').each_line do |line|
+    if line.include? phrase
+      raise "Wow, got it"
+    end
+  end
+end
+
+Then /^Print them all$/ do
+  file_xls = File.join(Dir.pwd, '/TestData/Test_ss.xls')
+  book = Spreadsheet.open(file_xls)
+  ws = book.worksheet('Sheet1') #or index from 0
+  ws.each do |row|
+    login = row[0]
+    password = row[1]
+    puts login, password
+  end
+end
+
+Then /^Print credentials from the row "([^"]*)"$/ do |row_num|
+  file_xls = File.join(Dir.pwd, '/TestData/Test_ss.xls')
+  book = Spreadsheet.open(file_xls)
+  ws = book.worksheet('Sheet1') #or index from 0
+
+  target_row = ws.row(row_num.to_i-1)
+  my_login = target_row[0]
+  my_password = target_row[1]
+
+  puts "My login is: " + my_login,  "My password is: " + my_password
+end
+
+Then /^Find string into the files$/ do
+  array = ['romeo.txt', 'text_1.txt', 'text_2.txt']
+  for i in array do
+    file = '/TestData/' + i
+    path = File.join(Dir.pwd, file)
+    File.open(path, 'r').each_line do |line|
+      if line.include? "This is the line of text I was looking for"
+        next
+      else
+        puts i
+        raise i "does not include this string"
+      end
+    end
+  end
+end
+
+Then /^Try to login$/ do
+  file = File.join(Dir.pwd, "/TestData/Test_ss.xls")
+  book = Spreadsheet.open(file)
+  ws = book.worksheet('Sheet1')
+
+  ws.each do |row|
+    loggin = row[0]
+    password = row[1]
+    login_field = $driver.find_element(:id, "email") rescue false
+    if login_field
+      login_field.send_keys loggin
+      pass_field = $driver.find_element(:id, "pass")
+      pass_field.send_keys password
+      button = $driver.find_element(:id, "loginbutton")
+      button.click
+      sleep 2
+      try_again = $driver.find_element(:xpath, "//a[contains(text(), 'Попробуйте еще раз')]") rescue false
+      if try_again
+        try_again.click
+        sleep 2
+      end
+    end
+  end
+  login_field = $driver.find_element(:id, "email") rescue false
+  if login_field
+    raise 'No correct login/password'
+  elsif not login_field
+    puts "Successful login"
+  end
+end
+
+Then /^Log in into gmail$/ do
+  login = 'isegamega@gmail.com'
+  password = ''
+  gmail = Gmail.connect(login, password)
+
+  puts gmail.logged_in?
+  puts gmail.inbox.count(:unread)
+  gmail.logout
+end
+
+Then /^Print unread$/ do
+  login = 'isegamega@gmail.com'
+  password = ''
+  gmail = Gmail.connect(login, password)
+  puts gmail.logged_in?
+
+  gmail.inbox.find(:unread).each do |mail|
+    text = mail.body.decoded
+    puts text
+  end
+
+
+  gmail.logout
+end
+
+Then /^Link from mail$/ do
+  login = 'isegamega@gmail.com'
+  password = ''
+  gmail = Gmail.connect(login, password)
+  puts gmail.logged_in?
+
+  #gmail.inbox.find(:read, :from => 'support@educadium.com').each do |mail|
+  gmail.inbox.find(:read, :subject => 'Quiz submission confirmation: Quiz 2').each do |mail|
+    text = mail.body.decoded
+
+    reg_link = /<a>Click/m.match(text).gsub!(/\s/, '') #or (' ', '')
+
+
+    puts reg_link
+  end
+  gmail.logout
+end
+
+Then /^Spam remove$/ do
+  login = 'isegamega@gmail.com'
+  password = ''
+  gmail = Gmail.connect(login, password)
+  puts gmail.logged_in?
+
+  black_list = ['spam@spam.com', 'spam2@spam.com']
+  for i in black_list do
+    gmail.inbox.find(:read, :from => i).each do |mail|
+      mail.delete!
+    end
+  end
+  gmail.logout
+end
+
+Then /^Send mail to "([^"]*)"$/ do |address|
+  login = 'isegamega@gmail.com'
+  password = ''
+  gmail = Gmail.connect(login, password)
+  puts gmail.logged_in?
+
+  gmail.deliver do
+    to address
+    subject "wow"
+    body 'Some information'
+    #add_file file
+  end
+  gmail.logout
+end
+
+Then /^Net imap mails print$/ do
+  login = 'isegamega@gmail.com'
+  password = ''
+  imap = Net::IMAP.new('imap.gmail.com', 993, true)
+  imap.login(login, password)
+  imap.select('INBOX')
+  imap.search(['FROM', 'spam@spam.com']).each do |mail|
+    text = imap.fetch(mail, 'RCF822')
+    puts text
+  end
+  imap.logout
+end
+
+Then /^Find code for pathfinder$/ do
+  $driver.get "http://www.practicalsqa.net/mars-brainteaser.html"
+  buttons = $driver.find_elements(:xpath, "//div[@id = 'buttons']/button")
+  n = 0
+  while n < buttons.count
+    m = 0
+    while m < buttons.count
+      for i in buttons do
+        status = $driver.find_elements(:xpath, "//span[@class = 'unlocked']")
+        break if status.count == 1
+        x, y, z = buttons[n].text, buttons[m].text, i.text
+        buttons[n].click
+        buttons[m].click
+        i.click
+        status = $driver.find_elements(:xpath, "//span[@class = 'unlocked']")
+        if status.count == 1
+          puts "Congratulation. Your password is: " + x + ' ' + y + ' ' + z
+        end
+      end
+      m += 1
+    end
+    n += 1
+  end
+end
+
+
